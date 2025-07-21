@@ -1,0 +1,35 @@
+name: Android ARM64 Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: کد رو دریافت کن
+        uses: actions/checkout@v4
+
+      - name: نصب Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+
+      - name: دادن دسترسی اجرا به gradlew
+        run: chmod +x ./gradlew
+
+      - name: بیلد فقط برای arm64-v8a
+        run: ./gradlew assembleDebug -PABI_FILTERS=arm64-v8a
+
+      - name: آپلود فایل apk خروجی
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-arm64-v8a
+          path: app/build/outputs/apk/debug/
